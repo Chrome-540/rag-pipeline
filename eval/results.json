@@ -1,0 +1,56 @@
+{
+  "num_questions": 2,
+  "aggregates": {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.9893294676397716,
+    "context_precision": 0.9874999999876563,
+    "context_recall": 1.0,
+    "page_accuracy": 0.75
+  },
+  "per_question": [
+    {
+      "id": 1,
+      "question": "Why is Earth called a unique planet?",
+      "expected_answer": "Earth is unique because it is the only known planet that sustains life, with diverse landscapes, liquid water, the right temperature, atmosphere, and magnetic field.",
+      "expected_pages": [
+        2,
+        5
+      ],
+      "generated_answer": "Earth is a unique planet because it supports life [Page 5, 16]. It has the right conditions for life and beautiful connections between living and non-living things that help sustain life [Page 4]. Earth's position in the solar system allows the presence of liquid water, and its size, atmosphere, and magnetic field all help make it a planet where life can emerge and thrive [Page 4].\n",
+      "retrieved_pages": [
+        1,
+        2,
+        3,
+        4,
+        8,
+        16
+      ],
+      "num_chunks": 10,
+      "page_accuracy": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9786589352795432,
+      "context_precision": 0.9749999999878125,
+      "context_recall": 1.0
+    },
+    {
+      "id": 2,
+      "question": "What is the greenhouse effect?",
+      "expected_answer": "The greenhouse effect is when gases like carbon dioxide in the atmosphere trap heat by absorbing radiation given off by the Earth after it gets warmed by the Sun.",
+      "expected_pages": [
+        5
+      ],
+      "generated_answer": "The greenhouse effect is when gases like carbon dioxide in the atmosphere trap heat by absorbing radiation given off by the Earth after it gets warmed by the sun [Page 5]. This effect plays an important role in maintaining the right temperature on Earth [Page 5]. Without the greenhouse effect, the Earth would lose heat to space and become too cold [Page 9].\n",
+      "retrieved_pages": [
+        5,
+        8,
+        9
+      ],
+      "num_chunks": 10,
+      "page_accuracy": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "context_precision": 0.9999999999875,
+      "context_recall": 1.0
+    }
+  ]
+}

@@ -3,8 +3,11 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from pydantic import BaseModel
 
 from src.ingestion import ingest_pdf
-from src.embeddings import upsert_chunks, get_or_create_index
+from src.embeddings import upsert_chunks, get_or_create_index, query_similar
+from src.bm25 import bm25_search
+from src.retrieval import retrieve, build_context, get_sources, reciprocal_rank_fusion
 from src.generation import generate_answer
+from src.parent_store import get_parent_text
 from src.logger import get_logger
 
 log = get_logger("api")
@@ -80,6 +83,50 @@ def query(req: QueryRequest):
 
     log.info(f"<< /query | output: {len(result['answer'])} chars")
     return result
+
+
+@app.post("/query/debug")
+def query_debug(req: QueryRequest):
+    """Return detailed retrieval info for comparison."""
+    log.info(f">> /query/debug | input: '{req.question[:50]}...'")
+
+    if not req.question.strip():
+        raise HTTPException(400, "Question cannot be empty.")
+
+    try:
+        # Vector-only results
+        vector_results = query_similar(req.question, top_k=5)
+
+        # BM25-only results
+        bm25_results = bm25_search(req.question, top_k=5)
+
+        # Hybrid (RRF merged)
+        hybrid_results = retrieve(req.question, top_k=5)
+
+        # Parent-child results
+        pc_results = query_similar(req.question, top_k=5, namespace="parent-child")
+        for r in pc_results:
+            parent_id = r.get("parent_id", "")
+            r["parent_text"] = get_parent_text(parent_id) if parent_id else ""
+
+        # Generate answer using hybrid
+        answer_result = generate_answer(req.question)
+
+    except Exception as e:
+        log.error(f"<< /query/debug | error: {e}")
+        raise HTTPException(500, f"Debug query failed: {str(e)}")
+
+    log.info(f"<< /query/debug | output: done")
+    return {
+        "answer": answer_result["answer"],
+        "sources": answer_result["sources"],
+        "debug": {
+            "vector": [{"text": r["text"][:200], "score": r["score"], "page": r["page"], "retrieval": "vector"} for r in vector_results],
+            "bm25": [{"text": r["text"][:200], "score": r["score"], "page": r["page"], "retrieval": "bm25"} for r in bm25_results],
+            "hybrid": [{"text": r["text"][:200], "score": r["score"], "page": r["page"], "retrieval": r.get("retrieval", "")} for r in hybrid_results],
+            "parent_child": [{"child": r["text"][:200], "parent": r.get("parent_text", "")[:300], "score": r["score"], "page": r["page"]} for r in pc_results],
+        },
+    }
 
 
 @app.get("/documents")

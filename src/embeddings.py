@@ -46,9 +46,9 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
     return embeddings
 
 
-def upsert_chunks(chunks: list[dict], batch_size: int = 100):
+def upsert_chunks(chunks: list[dict], batch_size: int = 100, namespace: str = ""):
     """Embed chunks and upsert them into Pinecone."""
-    log.info(f">> upsert_chunks | input: {len(chunks)} chunks, batch_size={batch_size}")
+    log.info(f">> upsert_chunks | input: {len(chunks)} chunks, batch_size={batch_size}, namespace='{namespace}'")
     index = get_or_create_index()
 
     for i in range(0, len(chunks), batch_size):
@@ -59,30 +59,39 @@ def upsert_chunks(chunks: list[dict], batch_size: int = 100):
         vectors = []
         for chunk, embedding in zip(batch, embeddings):
             vector_id = chunk["metadata"]["content_hash"]
+            metadata = {
+                "text": chunk["text"],
+                "source": chunk["metadata"]["source"],
+                "page": chunk["metadata"]["page"],
+                "chunk_index": chunk["metadata"]["chunk_index"],
+                "chapter": chunk["metadata"].get("chapter", ""),
+                "section": chunk["metadata"].get("section", ""),
+                "subsection": chunk["metadata"].get("subsection", ""),
+            }
+            # Include parent_id for parent-child strategy
+            if "parent_id" in chunk["metadata"]:
+                metadata["parent_id"] = chunk["metadata"]["parent_id"]
+
             vectors.append({
                 "id": vector_id,
                 "values": embedding,
-                "metadata": {
-                    "text": chunk["text"],
-                    "source": chunk["metadata"]["source"],
-                    "page": chunk["metadata"]["page"],
-                    "chunk_index": chunk["metadata"]["chunk_index"],
-                    "chapter": chunk["metadata"].get("chapter", ""),
-                    "section": chunk["metadata"].get("section", ""),
-                    "subsection": chunk["metadata"].get("subsection", ""),
-                },
+                "metadata": metadata,
             })
 
-        index.upsert(vectors=vectors)
+        index.upsert(vectors=vectors, namespace=namespace)
         log.info(f"   upserted batch {i // batch_size + 1} ({len(vectors)} vectors)")
 
-    log.info(f"<< upsert_chunks | output: {len(chunks)} vectors upserted")
+    # Build BM25 index alongside vector store
+    from src.bm25 import build_bm25_index
+    build_bm25_index(chunks)
+
+    log.info(f"<< upsert_chunks | output: {len(chunks)} vectors upserted to namespace='{namespace}'")
 
 
-def query_similar(query: str, top_k: int = None) -> list[dict]:
+def query_similar(query: str, top_k: int = None, namespace: str = "") -> list[dict]:
     """Find chunks most similar to the query."""
     top_k = top_k or settings.top_k
-    log.info(f">> query_similar | input: query='{query[:50]}...', top_k={top_k}")
+    log.info(f">> query_similar | input: query='{query[:50]}...', top_k={top_k}, namespace='{namespace}'")
     index = get_or_create_index()
 
     query_embedding = generate_embeddings([query])[0]
@@ -91,6 +100,7 @@ def query_similar(query: str, top_k: int = None) -> list[dict]:
         vector=query_embedding,
         top_k=top_k,
         include_metadata=True,
+        namespace=namespace,
     )
 
     matches = [
@@ -100,6 +110,8 @@ def query_similar(query: str, top_k: int = None) -> list[dict]:
             "source": match.metadata["source"],
             "page": match.metadata["page"],
             "section": match.metadata.get("section", ""),
+            "parent_id": match.metadata.get("parent_id", ""),
+            "retrieval": "vector",
         }
         for match in results.matches
     ]

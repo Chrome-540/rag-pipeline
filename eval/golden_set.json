@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "question": "Why is Earth called a unique planet?",
+    "expected_answer": "Earth is unique because it is the only known planet that sustains life, with diverse landscapes, liquid water, the right temperature, atmosphere, and magnetic field.",
+    "expected_pages": [2, 5],
+    "difficulty": "easy"
+  },
+  {
+    "id": 2,
+    "question": "What is the greenhouse effect?",
+    "expected_answer": "The greenhouse effect is when gases like carbon dioxide in the atmosphere trap heat by absorbing radiation given off by the Earth after it gets warmed by the Sun.",
+    "expected_pages": [5],
+    "difficulty": "easy"
+  },
+  {
+    "id": 3,
+    "question": "Why is Venus the hottest planet?",
+    "expected_answer": "Venus is the hottest planet not because it is closest to the Sun, but because its thick atmosphere of carbon dioxide traps heat through the greenhouse effect.",
+    "expected_pages": [4, 5],
+    "difficulty": "easy"
+  },
+  {
+    "id": 4,
+    "question": "What is the habitable zone?",
+    "expected_answer": "The habitable zone is the range of distances from a star over which water can remain in liquid form. It is also called the Goldilocks zone.",
+    "expected_pages": [5, 6],
+    "difficulty": "easy"
+  },
+  {
+    "id": 5,
+    "question": "What is the average temperature of Earth according to Table 13.2?",
+    "expected_answer": "The average temperature of Earth is 15 degrees Celsius.",
+    "expected_pages": [4],
+    "difficulty": "medium"
+  },
+  {
+    "id": 6,
+    "question": "Which planet has a radius 11 times that of Earth?",
+    "expected_answer": "The planet name is missing in Table 13.2, but the entry with radius 11 times Earth corresponds to row 5 (Jupiter).",
+    "expected_pages": [4],
+    "difficulty": "medium"
+  },
+  {
+    "id": 7,
+    "question": "Why is Earth called the Blue Planet?",
+    "expected_answer": "Earth is called the Blue Planet because most of its surface is covered with water, making it look blue when seen from space.",
+    "expected_pages": [6],
+    "difficulty": "easy"
+  },
+  {
+    "id": 8,
+    "question": "What is the role of Earth's magnetic field?",
+    "expected_answer": "Earth's magnetic field acts like a protective shield, pushing away harmful high-energy particles from space like cosmic rays and solar wind, keeping the atmosphere and life safe.",
+    "expected_pages": [8],
+    "difficulty": "medium"
+  },
+  {
+    "id": 9,
+    "question": "What is the ozone layer and what does it do?",
+    "expected_answer": "The ozone layer is made of a three-atom oxygen molecule (ozone) and acts like a shield, blocking harmful ultraviolet (UV) rays from the Sun that can damage living cells.",
+    "expected_pages": [7],
+    "difficulty": "medium"
+  },
+  {
+    "id": 10,
+    "question": "What would happen if the Earth were much smaller?",
+    "expected_answer": "If Earth were much smaller with the same density, its gravity would be too weak to hold on to the gases in the atmosphere, and they would escape into space.",
+    "expected_pages": [7],
+    "difficulty": "medium"
+  },
+  {
+    "id": 11,
+    "question": "What is the difference between asexual and sexual reproduction?",
+    "expected_answer": "In asexual reproduction, a single parent produces offspring that are exact copies. In sexual reproduction, two parents combine genetic material to create offspring that are different from both parents.",
+    "expected_pages": [11, 12],
+    "difficulty": "medium"
+  },
+  {
+    "id": 12,
+    "question": "What is vegetative propagation?",
+    "expected_answer": "Vegetative propagation is when plants reproduce from parts like leaf, stem, or root planted in soil, without seeds.",
+    "expected_pages": [11, 12],
+    "difficulty": "easy"
+  },
+  {
+    "id": 13,
+    "question": "What is pollination?",
+    "expected_answer": "Pollination is the process where pollen is carried from one flower to another by wind, insects, or animals.",
+    "expected_pages": [13],
+    "difficulty": "easy"
+  },
+  {
+    "id": 14,
+    "question": "What is the triple planetary crisis?",
+    "expected_answer": "The triple planetary crisis refers to climate change, biodiversity loss, and pollution — the three biggest environmental challenges facing Earth today.",
+    "expected_pages": [14],
+    "difficulty": "medium"
+  },
+  {
+    "id": 15,
+    "question": "What was Mangalyaan?",
+    "expected_answer": "Mangalyaan was India's Mars Orbiter Mission launched in 2013 by ISRO to study Mars' atmosphere, surface, and signs of past water.",
+    "expected_pages": [7],
+    "difficulty": "medium"
+  },
+  {
+    "id": 16,
+    "question": "What is geodiversity?",
+    "expected_answer": "Geodiversity is the variety of landforms, rocks, soils, and the processes that shape and alter them on Earth.",
+    "expected_pages": [10],
+    "difficulty": "medium"
+  },
+  {
+    "id": 17,
+    "question": "What is the biosphere?",
+    "expected_answer": "The biosphere includes all living beings along with the places where they live — land, water, and air where life interacts with its surroundings.",
+    "expected_pages": [10],
+    "difficulty": "easy"
+  },
+  {
+    "id": 18,
+    "question": "How does the Earth's crust compare to an apple?",
+    "expected_answer": "If Earth were the size of an apple, the crust would be as thin as the apple's skin.",
+    "expected_pages": [2],
+    "difficulty": "easy"
+  },
+  {
+    "id": 19,
+    "question": "What is the Paris Agreement?",
+    "expected_answer": "The Paris Agreement (2015) committed countries to reduce greenhouse gas emissions with a goal to limit global warming to below 1.5 degrees Celsius.",
+    "expected_pages": [15],
+    "difficulty": "hard"
+  },
+  {
+    "id": 20,
+    "question": "What is Newton's third law?",
+    "expected_answer": "This information is not in the document.",
+    "expected_pages": [],
+    "difficulty": "hard"
+  }
+]
