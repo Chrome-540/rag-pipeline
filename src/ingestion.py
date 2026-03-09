@@ -161,6 +161,66 @@ def chunk_markdown(md_pages: list[dict], source_filename: str) -> list[dict]:
     return all_chunks
 
 
+def chunk_parent_child(md_pages: list[dict], source_filename: str) -> dict:
+    """Parent-child chunking: small children for search, large parents for context."""
+    log.info(f">> chunk_parent_child | input: {len(md_pages)} pages, source={source_filename}")
+
+    parent_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1024,
+        chunk_overlap=100,
+    )
+    child_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=256,
+        chunk_overlap=50,
+    )
+
+    parents = {}  # parent_id -> parent text
+    children = []
+    child_idx = 0
+
+    for page_data in md_pages:
+        page_num = page_data.get("metadata", {}).get("page", 0)
+        text = page_data.get("text", "")
+
+        if not text.strip():
+            continue
+
+        # Create parent chunks
+        parent_texts = parent_splitter.split_text(text)
+
+        for p_idx, parent_text in enumerate(parent_texts):
+            parent_id = hashlib.md5(parent_text.encode()).hexdigest()
+            parents[parent_id] = {
+                "text": parent_text,
+                "page": page_num,
+                "source": source_filename,
+            }
+
+            # Split parent into children
+            child_texts = child_splitter.split_text(parent_text)
+
+            for child_text in child_texts:
+                content_hash = hashlib.md5(child_text.encode()).hexdigest()
+                children.append({
+                    "text": child_text,
+                    "metadata": {
+                        "source": source_filename,
+                        "page": page_num,
+                        "chunk_index": child_idx,
+                        "chapter": "",
+                        "section": "",
+                        "subsection": "",
+                        "content_hash": content_hash,
+                        "strategy": "parent-child",
+                        "parent_id": parent_id,
+                    },
+                })
+                child_idx += 1
+
+    log.info(f"<< chunk_parent_child | output: {len(parents)} parents, {len(children)} children")
+    return {"parents": parents, "children": children}
+
+
 def deduplicate_chunks(chunks: list[dict]) -> list[dict]:
     """Remove duplicate chunks based on content hash."""
     log.info(f">> deduplicate_chunks | input: {len(chunks)} chunks")
