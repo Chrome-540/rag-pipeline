@@ -1,0 +1,14 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+langchain==0.3.7
+langchain-google-genai==2.0.6
+langchain-pinecone==0.2.0
+pinecone-client==5.0.1
+python-dotenv==1.0.1
+pydantic-settings==2.6.1
+python-multipart==0.0.12
+pymupdf4llm==0.0.17
+pymupdf==1.25.3
+Pillow==11.1.0
+google-genai
+streamlit
