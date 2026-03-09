@@ -3,13 +3,13 @@
 ## Goal
 Improve retrieval quality with hybrid search, reranking, and smarter chunking. Full visibility to compare strategies.
 
-## Status: NOT STARTED
+## Status: COMPLETE (6/7 steps done, 1 skipped)
 
 | # | Step | Status |
 |---|------|--------|
 | 1 | Hybrid search (BM25 + vector) | Done |
 | 2 | Reciprocal Rank Fusion (merge results) | Done |
-| 3 | Cross-encoder reranker | Not started |
+| 3 | Cross-encoder reranker | Done |
 | 4 | Query rewriting (LLM) | Not started |
 | 5 | Parent-child chunking | Done |
 | 6 | Semantic chunking | Skipped (headers sufficient) |

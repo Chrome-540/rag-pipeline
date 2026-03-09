@@ -36,22 +36,31 @@ def reciprocal_rank_fusion(result_lists: list[list[dict]], k: int = 60) -> list[
 
 
 def retrieve(query: str, top_k: int = None, score_threshold: float = None) -> list[dict]:
-    """Hybrid retrieve: vector + BM25, merged with RRF."""
+    """Hybrid retrieve: vector + BM25, merged with RRF, optionally reranked."""
     top_k = top_k or settings.top_k
     log.info(f">> retrieve | input: query='{query[:50]}...', top_k={top_k}")
 
+    # Over-retrieve candidates for reranking
+    candidate_k = settings.rerank_candidates if settings.rerank_enabled else top_k
+
     # Get results from both sources
-    vector_results = query_similar(query, top_k=top_k)
-    bm25_results = bm25_search(query, top_k=top_k)
+    vector_results = query_similar(query, top_k=candidate_k)
+    bm25_results = bm25_search(query, top_k=candidate_k)
 
     # Merge with RRF
     merged = reciprocal_rank_fusion([vector_results, bm25_results])
 
-    # Take top_k
-    final = merged[:top_k]
+    # Rerank or truncate
+    if settings.rerank_enabled:
+        from src.reranker import rerank
+        log.info(f"   reranking {len(merged)} candidates down to {top_k}")
+        final = rerank(query, merged, top_k=top_k)
+    else:
+        final = merged[:top_k]
 
     for i, r in enumerate(final, 1):
-        log.info(f"   chunk {i} | rrf={r['score']:.4f} | via={r['retrieval']} | page={r['page']} | {r['text'][:100]}...")
+        rerank_info = f" | rerank={r['rerank_score']:.3f}" if "rerank_score" in r else ""
+        log.info(f"   chunk {i} | rrf={r['score']:.4f}{rerank_info} | via={r['retrieval']} | page={r['page']} | {r['text'][:100]}...")
 
     log.info(f"<< retrieve | output: {len(final)} chunks")
     return final

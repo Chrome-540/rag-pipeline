@@ -13,3 +13,4 @@ Pillow==11.1.0
 google-genai
 streamlit
 rank-bm25
+sentence-transformers

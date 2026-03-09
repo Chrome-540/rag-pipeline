@@ -1,6 +1,9 @@
 import os
 import sys
+import json
+from pathlib import Path
 import requests
+import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="RAG Pipeline", page_icon="📚", layout="wide")
@@ -43,7 +46,7 @@ with st.sidebar:
         st.error("API not running. Start it with:\nuvicorn src.main:app --reload")
 
 # Tabs
-tab_chat, tab_compare = st.tabs(["Chat", "Retrieval Comparison"])
+tab_chat, tab_compare, tab_eval = st.tabs(["Chat", "Retrieval Comparison", "Evaluation"])
 
 # ============ CHAT TAB ============
 with tab_chat:
@@ -141,3 +144,84 @@ with tab_compare:
 
             except requests.ConnectionError:
                 st.error("API not running.")
+
+# ============ EVALUATION TAB ============
+with tab_eval:
+    st.subheader("RAGAS Evaluation Results")
+
+    EVAL_RESULTS_PATH = Path(__file__).parent / "eval" / "results.json"
+    TRACES_DIR = Path(__file__).parent / "traces"
+
+    if not EVAL_RESULTS_PATH.exists():
+        st.info("No evaluation results found. Run `python eval/run_eval.py` first.")
+    else:
+        with open(EVAL_RESULTS_PATH, "r", encoding="utf-8") as f:
+            results = json.load(f)
+
+        agg = results.get("aggregates", {})
+        per_q = results.get("per_question", [])
+
+        # --- Aggregate Metrics ---
+        st.markdown("### Aggregate Metrics")
+        metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall", "page_accuracy"]
+        metric_labels = ["Faithfulness", "Answer Relevancy", "Context Precision", "Context Recall", "Page Accuracy"]
+        cols = st.columns(len(metric_names))
+        for col, name, label in zip(cols, metric_names, metric_labels):
+            val = agg.get(name)
+            col.metric(label, f"{val:.2f}" if val is not None else "N/A")
+
+        st.markdown(f"**Questions evaluated:** {results.get('num_questions', len(per_q))}")
+
+        # --- Per-Question Table ---
+        st.markdown("### Per-Question Scores")
+        table_data = []
+        for q in per_q:
+            row = {
+                "ID": q["id"],
+                "Question": q["question"],
+                "Faithfulness": q.get("faithfulness"),
+                "Answer Relevancy": q.get("answer_relevancy"),
+                "Context Precision": q.get("context_precision"),
+                "Context Recall": q.get("context_recall"),
+                "Page Accuracy": q.get("page_accuracy"),
+            }
+            table_data.append(row)
+        st.dataframe(table_data, use_container_width=True)
+
+        # --- Question Details ---
+        st.markdown("### Question Details")
+        for q in per_q:
+            with st.expander(f"Q{q['id']}: {q['question']}"):
+                col_exp, col_gen = st.columns(2)
+                with col_exp:
+                    st.markdown("**Expected Answer:**")
+                    st.write(q.get("expected_answer", ""))
+                    st.markdown(f"**Expected Pages:** {q.get('expected_pages', [])}")
+                with col_gen:
+                    st.markdown("**Generated Answer:**")
+                    st.write(q.get("generated_answer", ""))
+                    st.markdown(f"**Retrieved Pages:** {q.get('retrieved_pages', [])}")
+
+        # --- Latency Breakdown ---
+        st.markdown("### Latency Breakdown")
+        if TRACES_DIR.exists():
+            trace_files = sorted(TRACES_DIR.glob("*.json"))
+            if trace_files:
+                trace_latencies = []
+                for tf in trace_files:
+                    with open(tf, "r", encoding="utf-8") as f:
+                        t = json.load(f)
+                    trace_latencies.append({
+                        "Query": t.get("query", "")[:60],
+                        "Retrieval (ms)": t.get("latency_ms", {}).get("retrieval", 0),
+                        "Generation (ms)": t.get("latency_ms", {}).get("generation", 0),
+                        "Total (ms)": t.get("total_ms", 0),
+                    })
+                df_latency = pd.DataFrame(trace_latencies)
+                chart_df = df_latency.set_index("Query")[["Retrieval (ms)", "Generation (ms)"]]
+                st.bar_chart(chart_df)
+                st.dataframe(df_latency, use_container_width=True)
+            else:
+                st.info("No trace files found in traces/ directory.")
+        else:
+            st.info("No traces directory found. Query the pipeline to generate traces.")

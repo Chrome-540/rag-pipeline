@@ -6,5 +6,6 @@ uploads/
 extracted_images/
 cache/
 artifacts/
+traces/
 venv/
 .vscode/
